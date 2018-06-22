@@ -54,6 +54,7 @@ class RpisCamera(object):
     class MotionDetector(PiMotionAnalysis):
         def __init__(self):
             self.is_first = True
+            super(MotionDetector, self).__init__()
 
         camera_trigger = Event()
         motion_magnitude = 60
