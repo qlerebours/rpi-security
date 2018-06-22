@@ -52,6 +52,9 @@ class RpisCamera(object):
         self.motion_detector.motion_vectors = self.motion_vectors
 
     class MotionDetector(PiMotionAnalysis):
+        def __init__(self):
+            self.is_first = True
+
         camera_trigger = Event()
         motion_magnitude = 60
         motion_vectors = 10
@@ -72,7 +75,12 @@ class RpisCamera(object):
             ).clip(0, 255).astype(np.uint8)
             vector_count = (a > self.motion_magnitude).sum()
             if vector_count > self.motion_vectors:
-                self.motion_detected(vector_count)
+                if self.is_first:
+                    logger.info("Prevented motion detection once")
+                    self.is_first = False
+                else:
+                    self.is_first = True
+                    self.motion_detected(vector_count)
 
     def take_photo(self, filename_extra_suffix=''):
         """
