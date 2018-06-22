@@ -52,15 +52,12 @@ class RpisCamera(object):
         self.motion_detector.motion_vectors = self.motion_vectors
 
     class MotionDetector(PiMotionAnalysis):
-        def __init__(self):
-            self.is_first = True
-            super(MotionDetector, self).__init__()
-
         camera_trigger = Event()
         motion_magnitude = 60
         motion_vectors = 10
         motion_settle_time = 1
         motion_detection_started = 0
+        is_first = True
 
         def motion_detected(self, vector_count):
             if time.time() - self.motion_detection_started < self.motion_settle_time:
