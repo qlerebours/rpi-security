@@ -11,7 +11,7 @@ from threading import Lock, Event
 from queue import Queue
 from .exit_clean import exit_error
 from datetime import datetime
-
+import json
 
 logger = logging.getLogger()
 
@@ -67,18 +67,14 @@ class RpisCamera(object):
             self.camera_trigger.set()
 
         def analyse(self, a):
-            a = np.sqrt(
+            magnitude = np.sqrt(
                 np.square(a['x'].astype(np.float)) +
                 np.square(a['y'].astype(np.float))
             ).clip(0, 255).astype(np.uint8)
-            vector_count = (a > self.motion_magnitude).sum()
+            vector_count = (magnitude > self.motion_magnitude).sum()
             if vector_count > self.motion_vectors:
-                if self.is_first:
-                    logger.info("Prevented motion detection once")
-                    self.is_first = False
-                else:
-                    self.is_first = True
-                    self.motion_detected(vector_count)
+                logger.info("Motion detected with magnitude: %s", json.dumps(magnitude))
+                self.motion_detected(vector_count)
 
     def take_photo(self, filename_extra_suffix=''):
         """
