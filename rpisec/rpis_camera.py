@@ -63,7 +63,7 @@ class RpisCamera(object):
             if time.time() - self.motion_detection_started < self.motion_settle_time:
                 logger.debug('Ignoring initial motion due to settle time')
                 return
-            logger.info('Motion detected. Vector count: {0}. Threshold: {1}'.format(json.dumps(vector_count), json.dumps(self.motion_vectors)))
+            logger.info('Motion detected. Vector count: {0}. Threshold: {1}'.format(json.dumps(vector_count), json.dumps(self.motion_vectors.tolist())))
             self.camera_trigger.set()
 
         def analyse(self, a):
