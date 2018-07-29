@@ -63,8 +63,9 @@ class RpisCamera(object):
             if time.time() - self.motion_detection_started < self.motion_settle_time:
                 logger.debug('Ignoring initial motion due to settle time')
                 return
-            logger.info("Type of vector_count variable is: ", type(vector_count).__name__)
-            logger.info('Motion detected. Vector count: %s. Threshold: %s', json.dumps(vector_count), json.dumps(self.motion_vectors.tolist()))
+            logger.info("Type of vector_count variable is: %s", type(vector_count).__name__)
+            logger.info("Type of motion_vectors variable is: %s", type(self.motion_vectors).__name__)
+            logger.info('Motion detected. Vector count: %s. Threshold: %s', json.dumps(vector_count.item()), json.dumps(self.motion_vectors.tolist()))
             self.camera_trigger.set()
 
         def analyse(self, a):
@@ -74,7 +75,7 @@ class RpisCamera(object):
             ).clip(0, 255).astype(np.uint8)
             vector_count = (magnitude > self.motion_magnitude).sum()
             if vector_count > self.motion_vectors:
-                logger.info("Type of magnitude variable is: ", type(magnitude).__name__)
+                logger.info("Type of magnitude variable is: %s", type(magnitude).__name__)
                 logger.info("Motion detected with magnitude: %s", json.dumps(magnitude.tolist()))
                 self.motion_detected(vector_count)
 
