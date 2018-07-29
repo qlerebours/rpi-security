@@ -65,7 +65,7 @@ class RpisCamera(object):
                 return
             logger.info("Type of vector_count variable is: %s", type(vector_count).__name__)
             logger.info("Type of motion_vectors variable is: %s", type(self.motion_vectors).__name__)
-            logger.info('Motion detected. Vector count: %s. Threshold: %s', json.dumps(vector_count.item()), json.dumps(self.motion_vectors.tolist()))
+            logger.info('Motion detected. Vector count: %s. Threshold: %s', json.dumps(vector_count.item()), json.dumps(self.motion_vectors))
             self.camera_trigger.set()
 
         def analyse(self, a):
