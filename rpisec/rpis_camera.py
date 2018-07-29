@@ -75,7 +75,7 @@ class RpisCamera(object):
             ).clip(0, 255).astype(np.uint8)
             vector_count = (magnitude > self.motion_magnitude).sum()
             if vector_count > self.motion_vectors:
-                logger.info("Type of magnitude variable is: %s", type(magnitude).__name__)
+                logger.info("Type of 'a' variable is: %s", type(a).__name__)
                 logger.info("Motion detected with magnitude: %s", json.dumps(magnitude.tolist()))
                 self.motion_detected(vector_count)
 
