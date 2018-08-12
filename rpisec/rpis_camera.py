@@ -160,6 +160,7 @@ class RpisCamera(object):
     def start_motion_detection(self):
         logger.debug("Will initialize RpiCamera stream")
         # vs = VideoStream(usePiCamera=True).start()
+        min_area = 500
         picture_path = '/tmp/rpi-security-test.jpg'
         self.camera.capture(picture_path, use_video_port=False)
         first_frame = None
@@ -175,13 +176,13 @@ class RpisCamera(object):
 
             # if frame is initialized, we have not reach the end of the video
             if frame is not None:
-                result = self.handle_new_frame(frame, first_frame, args)
+                result = self.handle_new_frame(frame, first_frame, min_area)
                 if result is not None:
                     first_frame = result
             else:
                 video_in_progress = False
 
-    def handle_new_frame(self, frame, first_frame, args):
+    def handle_new_frame(self, frame, first_frame, min_area):
         logger.debug("New frame")
         motion_detected = False
         self.print_image("images/test", frame)
@@ -213,7 +214,7 @@ class RpisCamera(object):
         # loop over the contours
         for c in cnts:
             # if the contour is too small, ignore it
-            if cv2.contourArea(c) < args["min_area"]:
+            if cv2.contourArea(c) < min_area:
                 continue
 
             # compute the bounding box for the contour, draw it on the frame,
