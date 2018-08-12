@@ -13,6 +13,13 @@ from .exit_clean import exit_error
 from datetime import datetime
 import json
 
+from imutils.video import VideoStream
+import argparse
+import datetime
+import imutils
+import time
+import cv2
+
 logger = logging.getLogger()
 
 
@@ -151,19 +158,18 @@ class RpisCamera(object):
         self.camera.awb_gains = awb_gains
         self.camera.exposure_mode = 'off'
 
-    def start_motion_detection(self):
-
-        try:
-            if self.camera.recording:
-                logger.info("camera is recording")
-                self.camera.wait_recording(0.1)
-            else:
-                logger.debug("Starting motion detection")
-                self.set_motion_settings()
-                self.motion_detector.motion_detection_started = time.time()
-                self.camera.start_recording(os.devnull, format='h264', motion_output=self.motion_detector)
-        except Exception as e:
-            logger.error('Error in start_motion_detection: {0}'.format(repr(e)))
+    # def start_motion_detection(self):
+        # try:
+        #     if self.camera.recording:
+        #         logger.info("camera is recording")
+        #         self.camera.wait_recording(0.1)
+        #     else:
+        #         logger.debug("Starting motion detection")
+        #         self.set_motion_settings()
+        #         self.motion_detector.motion_detection_started = time.time()
+        #         self.camera.start_recording(os.devnull, format='h264', motion_output=self.motion_detector)
+        # except Exception as e:
+        #     logger.error('Error in start_motion_detection: {0}'.format(repr(e)))
 
     def stop_motion_detection(self):
         try:
