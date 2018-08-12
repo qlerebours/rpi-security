@@ -18,6 +18,7 @@ def monitor_alarm_state(rpis, camera):
 	"""
 	logger.info("thread running")
 	camera_initialized = False
+	time.sleep(10.0)
 	while True:
 		time.sleep(0.1)
 		rpis.state.check()
