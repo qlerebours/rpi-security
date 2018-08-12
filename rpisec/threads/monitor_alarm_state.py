@@ -20,7 +20,8 @@ def monitor_alarm_state(rpis, camera):
 	while True:
 		time.sleep(0.1)
 		rpis.state.check()
-		if rpis.state.current == 'armed':
+		# if rpis.state.current == 'armed':
+		if True:
 			vs = VideoStream(usePiCamera=True).start()
 			time.sleep(2.0)
 			first_frame = None
