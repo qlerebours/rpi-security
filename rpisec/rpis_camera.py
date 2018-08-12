@@ -161,7 +161,7 @@ class RpisCamera(object):
         logger.debug("Will initialize RpiCamera stream")
         # vs = VideoStream(usePiCamera=True).start()
         min_area = 500
-        picture_path = '/tmp/rpi-security-test.jpg'
+        picture_path = '/tmp/rpi-security/current.jpg'
         self.camera.capture(picture_path, use_video_port=False)
         first_frame = None
         video_in_progress = True
@@ -184,10 +184,6 @@ class RpisCamera(object):
 
     def handle_new_frame(self, frame, first_frame, min_area):
         logger.debug("New frame")
-        motion_detected = False
-        self.print_image("images/test", frame)
-        # resize the frame, convert it to grayscale, and blur it
-        # frame = imutils.resize(frame, width=500)
         (h, w) = frame.shape[:2]
         r = 500 / float(w)
         dim = (500, int(h * r))
@@ -221,29 +217,22 @@ class RpisCamera(object):
             # and update the text
             (x, y, w, h) = cv2.boundingRect(c)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            motion_detected = True
-            self.print_image("images/frame", frame)
-            self.print_image("images/gray", gray)
-            self.print_image("images/abs_diff", frame_detla)
-            self.print_image("images/tresh", thresh)
+            self.handle_motion_detected(frame, gray, frame_detla, thresh)
 
         return None
 
+    def handle_motion_detected(self, frame, gray, frame_detla, thresh):
+        if time.time() - self.motion_detection_started < self.motion_settle_time:
+            logger.debug('Ignoring initial motion due to settle time')
+            self.trigger_camera()
+            self.print_image("frame", frame)
+            self.print_image("gray", gray)
+            self.print_image("abs_diff", frame_detla)
+            self.print_image("tresh", thresh)
+            return
+
     def print_image(self, name, image):
-        cv2.imwrite(name + '_' + datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg", image)
-
-
-    # try:
-        #     if self.camera.recording:
-        #         logger.info("camera is recording")
-        #         self.camera.wait_recording(0.1)
-        #     else:
-        #         logger.debug("Starting motion detection")
-        #         self.set_motion_settings()
-        #         self.motion_detector.motion_detection_started = time.time()
-        #         self.camera.start_recording(os.devnull, format='h264', motion_output=self.motion_detector)
-        # except Exception as e:
-        #     logger.error('Error in start_motion_detection: {0}'.format(repr(e)))
+        cv2.imwrite('/tmp/rpi-security/images/' + name + '_' + datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg", image)
 
     def stop_motion_detection(self):
         try:
