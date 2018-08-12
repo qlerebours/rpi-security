@@ -12,8 +12,7 @@ def monitor_alarm_state(rpis, camera):
 	state is armed and takes photos when motion detection is triggered.
 	"""
 	logger.info("thread running")
-	camera_initialized = False
-	time.sleep(10.0)
+	time.sleep(2.0)
 	while True:
 		rpis.state.check()
 		# if rpis.state.current == 'armed':
