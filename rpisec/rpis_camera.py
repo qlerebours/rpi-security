@@ -161,7 +161,7 @@ class RpisCamera(object):
         logger.debug("Will initialize RpiCamera stream")
         # vs = VideoStream(usePiCamera=True).start()
         min_area = 500
-        first_frame = None
+        past_frame = None
         video_in_progress = True
         logger.debug("Started motion detection with VideoStream from RpiCamera")
         # loop over the frames of the video
@@ -174,9 +174,9 @@ class RpisCamera(object):
 
             # if frame is initialized, we have not reach the end of the video
             if frame is not None:
-                result = self.handle_new_frame(frame, first_frame, min_area)
-                if result is not None:
-                    first_frame = result
+                new_frame = self.handle_new_frame(frame, past_frame, min_area)
+                if new_frame is not None:
+                    past_frame = new_frame
             else:
                 video_in_progress = False
 
@@ -227,14 +227,12 @@ class RpisCamera(object):
         return None
 
     def handle_motion_detected(self, frame, gray, frame_detla, thresh):
-        if time.time() - self.motion_detection_started < self.motion_settle_time:
-            logger.debug('Ignoring initial motion due to settle time')
-            self.trigger_camera()
-            self.print_image("frame", frame)
-            self.print_image("gray", gray)
-            self.print_image("abs_diff", frame_detla)
-            self.print_image("tresh", thresh)
-            return
+        self.trigger_camera()
+        self.print_image("frame", frame)
+        self.print_image("gray", gray)
+        self.print_image("abs_diff", frame_detla)
+        self.print_image("tresh", thresh)
+        return
 
     def print_image(self, name, image):
         cv2.imwrite('/tmp/' + name + '_' + datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg", image)
