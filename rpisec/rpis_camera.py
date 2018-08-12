@@ -183,7 +183,7 @@ class RpisCamera(object):
                 video_in_progress = False
 
     def handle_new_frame(self, frame, first_frame, min_area):
-        logger.debug("New frame")
+        logger.debug("New frame, with typeof frame=" + type(frame).__name__ + " and type of first_frame" + type(first_frame).__name__)
         (h, w) = frame.shape[:2]
         r = 500 / float(w)
         dim = (500, int(h * r))
@@ -218,6 +218,8 @@ class RpisCamera(object):
             (x, y, w, h) = cv2.boundingRect(c)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             self.handle_motion_detected(frame, gray, frame_detla, thresh)
+        else:
+            logger.debug("Didn't find motion")
 
         return None
 
@@ -232,7 +234,7 @@ class RpisCamera(object):
             return
 
     def print_image(self, name, image):
-        cv2.imwrite('/tmp/rpi-security/images/' + name + '_' + datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg", image)
+        cv2.imwrite('motion-detection/images/' + name + '_' + datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg", image)
 
     def stop_motion_detection(self):
         try:
