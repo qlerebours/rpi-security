@@ -13,8 +13,7 @@ from .exit_clean import exit_error
 from datetime import datetime
 import json
 
-from imutils.video import VideoStream
-import argparse
+# from imutils.video import VideoStream
 import datetime
 import imutils
 import time
@@ -158,8 +157,82 @@ class RpisCamera(object):
         self.camera.awb_gains = awb_gains
         self.camera.exposure_mode = 'off'
 
-    # def start_motion_detection(self):
-        # try:
+    def start_motion_detection(self):
+        logger.debug("Will initialize RpiCamera stream")
+        # vs = VideoStream(usePiCamera=True).start()
+        picture_path = '/tmp/rpi-security-test.jpg'
+        self.camera.capture(picture_path, use_video_port=False)
+        first_frame = None
+        video_in_progress = True
+        logger.debug("Started motion detection with VideoStream from RpiCamera")
+        # loop over the frames of the video
+        while video_in_progress:
+            time.sleep(0.5)
+            # grab the current frame
+            frame = cv2.imread(picture_path)
+            # frame = vs.read()
+            # frame = frame if args.get("video", None) is None else frame[1]
+
+            # if frame is initialized, we have not reach the end of the video
+            if frame is not None:
+                result = self.handle_new_frame(frame, first_frame, args)
+                if result is not None:
+                    first_frame = result
+            else:
+                video_in_progress = False
+
+    def handle_new_frame(self, frame, first_frame, args):
+        logger.debug("New frame")
+        motion_detected = False
+        self.print_image("images/test", frame)
+        # resize the frame, convert it to grayscale, and blur it
+        # frame = imutils.resize(frame, width=500)
+        (h, w) = frame.shape[:2]
+        r = 500 / float(w)
+        dim = (500, int(h * r))
+        frame = cv2.resize(frame, dim, cv2.INTER_AREA)
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (21, 21), 0)
+
+        # if the first frame is None, initialize it
+        if first_frame is None:
+            first_frame = gray
+            return first_frame
+
+        # compute the absolute difference between the current frame and first frame
+        frame_detla = cv2.absdiff(first_frame, gray)
+        # then apply a threshold to remove camera motion and other false positives (like light changes)
+        thresh = cv2.threshold(frame_detla, 25, 255, cv2.THRESH_BINARY)[1]
+
+        # dilate the thresholded image to fill in holes, then find contours on thresholded image
+        thresh = cv2.dilate(thresh, None, iterations=2)
+        cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cnts[0] if imutils.is_cv2() else cnts[1]
+
+        # loop over the contours
+        for c in cnts:
+            # if the contour is too small, ignore it
+            if cv2.contourArea(c) < args["min_area"]:
+                continue
+
+            # compute the bounding box for the contour, draw it on the frame,
+            # and update the text
+            (x, y, w, h) = cv2.boundingRect(c)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            motion_detected = True
+            self.print_image("images/frame", frame)
+            self.print_image("images/gray", gray)
+            self.print_image("images/abs_diff", frame_detla)
+            self.print_image("images/tresh", thresh)
+
+        return None
+
+    def print_image(self, name, image):
+        cv2.imwrite(name + '_' + datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg", image)
+
+
+    # try:
         #     if self.camera.recording:
         #         logger.info("camera is recording")
         #         self.camera.wait_recording(0.1)
