@@ -161,7 +161,7 @@ class RpisCamera(object):
         logger.debug("Will initialize RpiCamera stream")
         # vs = VideoStream(usePiCamera=True).start()
         min_area = 500
-        picture_path = '/tmp/rpi-security/current.jpg'
+        picture_path = '/tmp/rpi-security-current.jpg'
         self.camera.capture(picture_path, use_video_port=False)
         first_frame = None
         video_in_progress = True
@@ -206,6 +206,11 @@ class RpisCamera(object):
         thresh = cv2.dilate(thresh, None, iterations=2)
         cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cnts = cnts[0] if imutils.is_cv2() else cnts[1]
+
+        self.print_image("frame", frame)
+        self.print_image("gray", gray)
+        self.print_image("abs_diff", frame_detla)
+        self.print_image("thresh", thresh)
 
         # loop over the contours
         for c in cnts:
