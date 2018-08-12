@@ -47,37 +47,37 @@ class RpisCamera(object):
         except Exception as e:
             exit_error('Camera module failed to intialise with error {0}'.format(repr(e)))
 
-        self.motion_detector = self.MotionDetector(self.camera)
-        self.motion_detector.motion_magnitude = self.motion_magnitude
-        self.motion_detector.motion_vectors = self.motion_vectors
+        # self.motion_detector = self.MotionDetector(self.camera)
+        # self.motion_detector.motion_magnitude = self.motion_magnitude
+        # self.motion_detector.motion_vectors = self.motion_vectors
 
-    class MotionDetector(PiMotionAnalysis):
-        camera_trigger = Event()
-        motion_magnitude = 60
-        motion_vectors = 10
-        motion_settle_time = 1
-        motion_detection_started = 0
-        is_first = True
-
-        def motion_detected(self, vector_count):
-            if time.time() - self.motion_detection_started < self.motion_settle_time:
-                logger.debug('Ignoring initial motion due to settle time')
-                return
-            logger.info("Type of vector_count variable is: %s", type(vector_count).__name__)
-            logger.info("Type of motion_vectors variable is: %s", type(self.motion_vectors).__name__)
-            logger.info('Motion detected. Vector count: %s. Threshold: %s', json.dumps(vector_count.item()), json.dumps(self.motion_vectors))
-            self.camera_trigger.set()
-
-        def analyse(self, a):
-            magnitude = np.sqrt(
-                np.square(a['x'].astype(np.float)) +
-                np.square(a['y'].astype(np.float))
-            ).clip(0, 255).astype(np.uint8)
-            vector_count = (magnitude > self.motion_magnitude).sum()
-            if vector_count > self.motion_vectors:
-                logger.info("Type of 'a' variable is: %s", type(a).__name__)
-                logger.info("Motion detected with magnitude: %s", json.dumps(magnitude.tolist()))
-                self.motion_detected(vector_count)
+    # class MotionDetector(PiMotionAnalysis):
+    #     camera_trigger = Event()
+    #     motion_magnitude = 60
+    #     motion_vectors = 10
+    #     motion_settle_time = 1
+    #     motion_detection_started = 0
+    #     is_first = True
+	#
+    #     def motion_detected(self, vector_count):
+    #         if time.time() - self.motion_detection_started < self.motion_settle_time:
+    #             logger.debug('Ignoring initial motion due to settle time')
+    #             return
+    #         logger.info("Type of vector_count variable is: %s", type(vector_count).__name__)
+    #         logger.info("Type of motion_vectors variable is: %s", type(self.motion_vectors).__name__)
+    #         logger.info('Motion detected. Vector count: %s. Threshold: %s', json.dumps(vector_count.item()), json.dumps(self.motion_vectors))
+    #         self.camera_trigger.set()
+	#
+    #     def analyse(self, a):
+    #         magnitude = np.sqrt(
+    #             np.square(a['x'].astype(np.float)) +
+    #             np.square(a['y'].astype(np.float))
+    #         ).clip(0, 255).astype(np.uint8)
+    #         vector_count = (magnitude > self.motion_magnitude).sum()
+    #         if vector_count > self.motion_vectors:
+    #             logger.info("Type of 'a' variable is: %s", type(a).__name__)
+    #             logger.info("Motion detected with magnitude: %s", json.dumps(magnitude.tolist()))
+    #             self.motion_detected(vector_count)
 
     def take_photo(self, filename_extra_suffix=''):
         """
@@ -152,8 +152,10 @@ class RpisCamera(object):
         self.camera.exposure_mode = 'off'
 
     def start_motion_detection(self):
+
         try:
             if self.camera.recording:
+                logger.info("camera is recording")
                 self.camera.wait_recording(0.1)
             else:
                 logger.debug("Starting motion detection")

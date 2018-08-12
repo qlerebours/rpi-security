@@ -18,6 +18,7 @@ def monitor_alarm_state(rpis, camera):
         rpis.state.check()
         if rpis.state.current == 'armed':
             while not camera.lock.locked():
+                logger.info("In while: Camera is not locked")
                 camera.start_motion_detection()
                 rpis.state.check()
                 if rpis.state.current is not 'armed':
