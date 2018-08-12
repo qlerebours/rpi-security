@@ -20,21 +20,23 @@ def monitor_alarm_state(rpis, camera):
 	camera_initialized = False
 	time.sleep(10.0)
 	while True:
-		time.sleep(0.1)
 		rpis.state.check()
 		# if rpis.state.current == 'armed':
 		if True:
 			logger.debug("Will initialize RpiCamera stream")
-			vs = VideoStream(usePiCamera=True).start()
-			time.sleep(2.0)
+			# vs = VideoStream(usePiCamera=True).start()
+			picture_path = '/tmp/rpi-security-test.jpg'
+			camera.capture(picture_path, use_video_port=False)
 			first_frame = None
 			video_in_progress = True
 			logger.debug("Started motion detection with VideoStream from RpiCamera")
 			# loop over the frames of the video
 			while video_in_progress:
+				time.sleep(0.5)
 				# grab the current frame
-				frame = vs.read()
-				frame = frame if args.get("video", None) is None else frame[1]
+				frame = cv2.imread(picture_path)
+				# frame = vs.read()
+				# frame = frame if args.get("video", None) is None else frame[1]
 
 				# if frame is initialized, we have not reach the end of the video
 				if frame is not None:
