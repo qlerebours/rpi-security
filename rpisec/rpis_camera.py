@@ -14,7 +14,6 @@ from datetime import datetime
 import json
 
 # from imutils.video import VideoStream
-import datetime
 import imutils
 import time
 import cv2
@@ -235,7 +234,7 @@ class RpisCamera(object):
         return
 
     def print_image(self, name, image):
-        cv2.imwrite('/tmp/' + name + '_' + datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg", image)
+        cv2.imwrite('/tmp/' + name + '_' + datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg", image)
 
     def stop_motion_detection(self):
         try:
