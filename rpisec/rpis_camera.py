@@ -179,8 +179,6 @@ class RpisCamera(object):
             self.stop_motion_detection()
 
     def handle_new_frame(self, frame, past_frame, min_area):
-        if frame is not None and past_frame is not None:
-            logger.debug("received frame with size= {0} and past_frame with size {1}".format(frame.shape[:2], past_frame.shape[:2]))
         (h, w) = frame.shape[:2]
         r = 500 / float(w)
         dim = (500, int(h * r))
@@ -217,7 +215,7 @@ class RpisCamera(object):
             if cv2.contourArea(c) < min_area:
                 continue
 
-            logger.debug("Found motion !")
+            logger.debug("Motion detected !")
             # compute the bounding box for the contour, draw it on the frame,
             # and update the text
             (x, y, w, h) = cv2.boundingRect(c)
