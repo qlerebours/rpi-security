@@ -216,13 +216,12 @@ class RpisCamera(object):
             if cv2.contourArea(c) < min_area:
                 continue
 
+            logger.debug("Found motion !")
             # compute the bounding box for the contour, draw it on the frame,
             # and update the text
             (x, y, w, h) = cv2.boundingRect(c)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             self.handle_motion_detected(frame, gray, frame_detla, thresh)
-        else:
-            logger.debug("Didn't find motion")
 
         return None
 
