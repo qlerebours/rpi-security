@@ -162,8 +162,9 @@ class RpisCamera(object):
         past_frame = None
         logger.debug("Started motion detection with VideoStream from RpiCamera")
         # loop over the frames of the video
+        picture_path = '/tmp/rpi-security-current.jpg'
         while not self.lock.locked():
-            picture_path = '/tmp/rpi-security-current.jpg'
+            self.camera.resolution = self.motion_size
             self.camera.capture(picture_path, use_video_port=False)
             time.sleep(0.5)
             # grab the current frame
