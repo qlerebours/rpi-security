@@ -158,13 +158,11 @@ class RpisCamera(object):
 
     def start_motion_detection(self):
         logger.debug("Will initialize RpiCamera stream")
-        # vs = VideoStream(usePiCamera=True).start()
         min_area = 500
         past_frame = None
-        video_in_progress = True
         logger.debug("Started motion detection with VideoStream from RpiCamera")
         # loop over the frames of the video
-        while video_in_progress:
+        while not self.lock.locked():
             picture_path = '/tmp/rpi-security-current.jpg'
             self.camera.capture(picture_path, use_video_port=False)
             time.sleep(0.5)
@@ -177,10 +175,11 @@ class RpisCamera(object):
                 if new_frame is not None:
                     past_frame = new_frame
             else:
-                video_in_progress = False
+                logger.error("No frame")
+        else:
+            self.stop_motion_detection()
 
-    def handle_new_frame(self, frame, first_frame, min_area):
-        logger.debug("New frame, with typeof frame=" + type(frame).__name__ + " and type of first_frame" + type(first_frame).__name__)
+    def handle_new_frame(self, frame, past_frame, min_area):
         (h, w) = frame.shape[:2]
         r = 500 / float(w)
         dim = (500, int(h * r))
@@ -190,12 +189,19 @@ class RpisCamera(object):
         gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
         # if the first frame is None, initialize it
-        if first_frame is None:
-            first_frame = gray
-            return first_frame
+        if past_frame is None:
+            past_frame = gray
+            return past_frame
+
+        # check if past_frame and current have the same sizes
+        (h_past_frame, w_past_frame) = past_frame.shape[:2]
+        (h_current_frame, w_current_frame) = gray.shape[:2]
+        if h_past_frame != h_current_frame or w_past_frame != w_current_frame:
+            logger.error('Past frame and current frame do not have the same sizes {0} {1} {2} {3}'.format(h_past_frame, w_past_frame, h_current_frame, w_current_frame))
+            return
 
         # compute the absolute difference between the current frame and first frame
-        frame_detla = cv2.absdiff(first_frame, gray)
+        frame_detla = cv2.absdiff(past_frame, gray)
         # then apply a threshold to remove camera motion and other false positives (like light changes)
         thresh = cv2.threshold(frame_detla, 25, 255, cv2.THRESH_BINARY)[1]
 
@@ -203,11 +209,6 @@ class RpisCamera(object):
         thresh = cv2.dilate(thresh, None, iterations=2)
         cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cnts = cnts[0] if imutils.is_cv2() else cnts[1]
-
-        self.print_image("frame", frame)
-        self.print_image("gray", gray)
-        self.print_image("abs_diff", frame_detla)
-        self.print_image("thresh", thresh)
 
         # loop over the contours
         for c in cnts:
