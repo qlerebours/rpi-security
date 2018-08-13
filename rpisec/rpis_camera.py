@@ -178,7 +178,7 @@ class RpisCamera(object):
             self.stop_motion_detection()
 
     def handle_new_frame(self, frame, past_frame, min_area):
-        if frame and past_frame:
+        if frame is not None and past_frame is not None:
             logger.debug("received frame with size= {0} and past_frame with size {1}".format(frame.shape[:2], past_frame.shape[:2]))
         (h, w) = frame.shape[:2]
         r = 500 / float(w)
