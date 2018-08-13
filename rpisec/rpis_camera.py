@@ -171,15 +171,14 @@ class RpisCamera(object):
 
             # if frame is initialized, we have not reach the end of the video
             if frame is not None:
-                new_frame = self.handle_new_frame(frame, past_frame, min_area)
-                if new_frame is not None:
-                    past_frame = new_frame
+                past_frame = self.handle_new_frame(frame, past_frame, min_area)
             else:
                 logger.error("No frame")
         else:
             self.stop_motion_detection()
 
     def handle_new_frame(self, frame, past_frame, min_area):
+        logger.debug("received frame with size= {0} and past_frame with size {1}".format(frame.shape[:2], past_frame.shape[:2]))
         (h, w) = frame.shape[:2]
         r = 500 / float(w)
         dim = (500, int(h * r))
