@@ -156,14 +156,15 @@ class RpisCamera(object):
         self.camera.awb_gains = awb_gains
         self.camera.exposure_mode = 'off'
 
-    def start_motion_detection(self):
+    def start_motion_detection(self, rpis):
         logger.debug("Will initialize RpiCamera stream")
         min_area = 500
         past_frame = None
         logger.debug("Started motion detection with VideoStream from RpiCamera")
         # loop over the frames of the video
         picture_path = '/tmp/rpi-security-current.jpg'
-        while not self.lock.locked():
+        rpis.state.check()
+        while not self.lock.locked() and rpis.state.current == 'armed':
             self.camera.resolution = self.motion_size
             self.camera.capture(picture_path, use_video_port=False)
             time.sleep(0.5)

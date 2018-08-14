@@ -17,6 +17,6 @@ def monitor_alarm_state(rpis, camera):
 		time.sleep(0.1)
 		rpis.state.check()
 		if rpis.state.current == 'armed':
-			camera.start_motion_detection()
+			camera.start_motion_detection(rpis)
 		else:
 			camera.stop_motion_detection()
