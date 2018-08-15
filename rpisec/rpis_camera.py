@@ -163,8 +163,8 @@ class RpisCamera(object):
         logger.debug("Started motion detection with VideoStream from RpiCamera")
         # loop over the frames of the video
         picture_path = '/tmp/rpi-security-current.jpg'
-        rpis.state.check()
         while not self.lock.locked() and rpis.state.current == 'armed':
+            logger.debug("New loop with rpis.state.current= " + rpis.state.current)
             self.camera.resolution = self.motion_size
             self.camera.capture(picture_path, use_video_port=False)
             time.sleep(0.5)
@@ -176,6 +176,7 @@ class RpisCamera(object):
                 past_frame = self.handle_new_frame(frame, past_frame, min_area)
             else:
                 logger.error("No frame")
+            rpis.state.check()
         else:
             self.stop_motion_detection()
 
