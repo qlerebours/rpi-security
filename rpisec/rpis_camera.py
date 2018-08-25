@@ -157,14 +157,12 @@ class RpisCamera(object):
         self.camera.exposure_mode = 'off'
 
     def start_motion_detection(self, rpis):
-        logger.debug("Will initialize RpiCamera stream")
         min_area = 500
         past_frame = None
-        logger.debug("Started motion detection with VideoStream from RpiCamera")
+        logger.debug("Started motion detection from video stream from RpiCamera")
         # loop over the frames of the video
         picture_path = '/tmp/rpi-security-current.jpg'
         while not self.lock.locked() and rpis.state.current == 'armed':
-            logger.debug("New loop with rpis.state.current= " + rpis.state.current)
             self.camera.resolution = self.motion_size
             self.camera.capture(picture_path, use_video_port=False)
             time.sleep(0.5)
@@ -175,7 +173,7 @@ class RpisCamera(object):
             if frame is not None:
                 past_frame = self.handle_new_frame(frame, past_frame, min_area)
             else:
-                logger.error("No frame")
+                logger.error("No more frame")
             rpis.state.check()
         else:
             self.stop_motion_detection()
@@ -204,7 +202,7 @@ class RpisCamera(object):
         # compute the absolute difference between the current frame and first frame
         frame_detla = cv2.absdiff(past_frame, gray)
         # then apply a threshold to remove camera motion and other false positives (like light changes)
-        thresh = cv2.threshold(frame_detla, 25, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.threshold(frame_detla, 50, 255, cv2.THRESH_BINARY)[1]
 
         # dilate the thresholded image to fill in holes, then find contours on thresholded image
         thresh = cv2.dilate(thresh, None, iterations=2)
