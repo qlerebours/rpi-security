@@ -203,7 +203,7 @@ class RpisCamera(object):
         return
 
     def print_image(self, name, image):
-        path = '/tmp/' + name + '_' + datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg"
+        path = '/tmp/' + name + '_' + datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpeg"
         cv2.imwrite(path, image)
         return path
 
