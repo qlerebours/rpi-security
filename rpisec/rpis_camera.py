@@ -194,15 +194,18 @@ class RpisCamera(object):
 
     def handle_motion_detected(self, frame, gray, frame_detla, thresh):
         self.trigger_camera()
-        self.queue.put(frame)
-        self.print_image("frame", frame)
+        frame_path = self.print_image("frame", frame)
+        self.queue.put(frame_path)
+
         self.print_image("gray", gray)
         self.print_image("abs_diff", frame_detla)
         self.print_image("tresh", thresh)
         return
 
     def print_image(self, name, image):
-        cv2.imwrite('/tmp/' + name + '_' + datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg", image)
+        path = '/tmp/' + name + '_' + datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg"
+        cv2.imwrite(path, image)
+        return path
 
     def stop_motion_detection(self):
         try:
