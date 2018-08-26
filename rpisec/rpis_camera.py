@@ -193,9 +193,9 @@ class RpisCamera(object):
         return None
 
     def handle_motion_detected(self, frame, gray, frame_detla, thresh):
-        self.trigger_camera()
         frame_path = self.print_image("frame", frame)
         self.queue.put(frame_path)
+        self.trigger_camera()
 
         self.print_image("gray", gray)
         self.print_image("abs_diff", frame_detla)
