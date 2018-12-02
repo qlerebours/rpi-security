@@ -150,12 +150,12 @@ class RpisCamera(object):
         (h, w) = frame.shape[:2]
         r = 500 / float(w)
         dim = (500, int(h * r))
-        frame = cv2.resize(frame, dim, cv2.INTER_AREA)
+        frame = cv2.resize(frame, dim, cv2.INTER_AREA) # We resize the frame
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.GaussianBlur(gray, (21, 21), 0)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) # We apply a black & white filter
+        gray = cv2.GaussianBlur(gray, (21, 21), 0) # Then we blur the picture
 
-        # if the first frame is None, initialize it
+        # if the first frame is None, initialize it because there is no frame for comparing the current one with a previous one
         if past_frame is None:
             past_frame = gray
             return past_frame
@@ -163,7 +163,7 @@ class RpisCamera(object):
         # check if past_frame and current have the same sizes
         (h_past_frame, w_past_frame) = past_frame.shape[:2]
         (h_current_frame, w_current_frame) = gray.shape[:2]
-        if h_past_frame != h_current_frame or w_past_frame != w_current_frame:
+        if h_past_frame != h_current_frame or w_past_frame != w_current_frame: # This shouldnt occur but this is error handling
             logger.error('Past frame and current frame do not have the same sizes {0} {1} {2} {3}'.format(h_past_frame, w_past_frame, h_current_frame, w_current_frame))
             return
 
@@ -183,9 +183,8 @@ class RpisCamera(object):
             if cv2.contourArea(c) < min_area:
                 continue
 
-            logger.debug("Motion detected !")
+            logger.debug("Motion detected !") # Motion detected because there is a contour that is larger than the specified min_area
             # compute the bounding box for the contour, draw it on the frame,
-            # and update the text
             (x, y, w, h) = cv2.boundingRect(c)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             self.handle_motion_detected(frame, gray, frame_detla, thresh)
@@ -197,11 +196,14 @@ class RpisCamera(object):
         self.queue.put(frame_path)
         self.trigger_camera()
 
+        # In case of motion detection, the pictures will be saved in /tmp folder to get the files somewhere else than Telegram
+        # Note that gray, abs_diff and thresh can be used to debug in case of false alarm
         self.print_image("gray", gray)
         self.print_image("abs_diff", frame_detla)
-        self.print_image("tresh", thresh)
+        self.print_image("thresh", thresh)
         return
 
+    # Usefull function for saving images in /tmp folder.
     def print_image(self, name, image):
         path = '/tmp/' + name + '_' + datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpeg"
         cv2.imwrite(path, image)
