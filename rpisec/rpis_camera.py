@@ -11,7 +11,6 @@ from threading import Lock, Event
 from queue import Queue
 from .exit_clean import exit_error
 from datetime import datetime
-import json
 
 # from imutils.video import VideoStream
 import imutils
