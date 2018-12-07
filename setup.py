@@ -26,7 +26,6 @@ setup(
         'opencv-python',
         'imutils',
         'numpy',
-        'scipy',
         'configparser',
         'requests',
         'requests[security]',
